@@ -1,65 +1,139 @@
-import Image from "next/image";
+'use client'
+import { useState } from 'react'
+
+const TARGETS = ['상사', '클라이언트', '동료', '친구/후배']
+const EXAMPLES = [
+  '바쁘신 거 아는데 혹시 시간 되시면 봐주실 수 있을까요?',
+  '제가 잘 몰라서 그런데 혹시 제 생각이 틀렸을까요?',
+  '아 그렇군요, 맞아요 사실 저도 그렇게 생각했어요',
+  '죄송한데 혹시 이건 좀 어렵지 않을까요 ㅠㅠ',
+]
 
 export default function Home() {
+  const [text, setText] = useState('')
+  const [target, setTarget] = useState('상사')
+  const [level, setLevel] = useState(3)
+  const [loading, setLoading] = useState(false)
+  const [result, setResult] = useState<{ translation: string; tip: string } | null>(null)
+  const [original, setOriginal] = useState('')
+
+  const translate = async () => {
+    if (!text.trim()) return
+    setLoading(true)
+    setOriginal(text)
+    setResult(null)
+    try {
+      const res = await fetch('/api/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, target, level }),
+        signal: AbortSignal.timeout(15000),
+      })
+      const data = await res.json()
+      if (data.error) {
+        setResult({ translation: '오늘 페이지 한도 초과 🎃 내일 다시 만나요', tip: '' })
+      } else {
+        setResult(data)
+      }
+    } catch (e) {
+      setResult({ translation: '번역 실패 ㅠ 다시 시도해봐', tip: '' })
+    }
+    setLoading(false)
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <main className="min-h-screen bg-[#FFFDF9] px-4 py-12">
+      <div className="max-w-xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-2xl font-semibold text-gray-900 mb-1">싫은소리못하는사람의마음의소리 🎃</h1>
+          <p className="text-sm text-gray-400">쿠션어로 포장된 말 → 진짜 하고 싶었던 말로 번역</p>
+        </div>
+
+        <textarea
+          className="w-full border border-gray-200 rounded-xl p-3 text-sm resize-none focus:outline-none focus:ring-1 focus:ring-orange-300 bg-white mb-3"
+          rows={4}
+          placeholder="여기에 쿠션어 붙여넣기..."
+          value={text}
+          onChange={e => setText(e.target.value)}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+
+        <div className="mb-4">
+          <p className="text-xs text-gray-400 mb-2">예시 문장</p>
+          <div className="flex flex-wrap gap-2">
+            {EXAMPLES.map(ex => (
+              <button key={ex} onClick={() => setText(ex)} className="text-xs px-3 py-1 rounded-full border border-gray-200 text-gray-500 hover:bg-gray-50">
+                {ex.slice(0, 18)}…
+              </button>
+            ))}
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
+
+        <div className="mb-4">
+          <div className="flex justify-between text-xs text-gray-400 mb-1">
+            <span>순한맛 🌱</span>
+            <span className="font-medium text-gray-700">{level}/5</span>
+            <span>핵폭탄 💥</span>
+          </div>
+          <input type="range" min={1} max={5} step={1} value={level} onChange={e => setLevel(Number(e.target.value))} className="w-full accent-orange-400" />
+        </div>
+
+        <div className="mb-5">
+          <p className="text-xs text-gray-400 mb-2">상대방</p>
+          <div className="flex gap-2 flex-wrap">
+            {TARGETS.map(t => (
+              <button key={t} onClick={() => setTarget(t)} className={`px-3 py-1 rounded-full text-sm border transition-colors ${target === t ? 'bg-gray-900 text-white border-gray-900' : 'border-gray-200 text-gray-500 hover:bg-gray-50'}`}>
+                {t}
+              </button>
+            ))}
+          </div>
+        </div>
+<div className="mb-3 px-3 py-2 rounded-lg bg-orange-50 border border-orange-100 text-xs text-orange-400">
+          ⚠️ 해당 마음의 소리로 불필요한 감정싸움이 일어날 수 있으니 주의 바랍니다
+        </div>
+        <button onClick={translate} disabled={loading || !text.trim()} className="w-full py-3 rounded-xl bg-orange-400 hover:bg-orange-500 disabled:opacity-40 text-white font-medium transition-colors mb-6">
+          {loading ? '번역 중...' : '🎃 단호박어로 번역'}
+        </button>
+
+        {(loading || result) && (
+          <div className="border border-gray-100 rounded-2xl overflow-hidden bg-white">
+            <div className="bg-gray-50 px-4 py-2 text-xs text-gray-400 border-b border-gray-100">마음속 원본 공개</div>
+            <div className="p-4 grid grid-cols-[1fr_20px_1fr] gap-3 items-start">
+              <div>
+                <p className="text-xs text-gray-400 mb-2">내가 한 말</p>
+                <div className="text-sm text-gray-600 bg-gray-50 rounded-xl p-3 leading-relaxed">{original}</div>
+              </div>
+              <div className="flex items-center justify-center pt-6 text-gray-300">→</div>
+              <div>
+                <p className="text-xs text-gray-400 mb-2">진짜 하고 싶었던 말 🎃</p>
+                <div className="text-sm bg-orange-50 border border-orange-200 text-orange-900 rounded-xl p-3 leading-relaxed min-h-[70px]">
+                  {loading ? <span className="text-orange-300">번역 중...</span> : result?.translation}
+                </div>
+              </div>
+            </div>
+            {result?.tip && <div className="px-4 pb-4 text-xs text-gray-400">💡 {result.tip}</div>}
+          </div>
+        )}
+
+        {/* 광고 영역 */}
+        <div className="mt-6 rounded-xl border border-dashed border-gray-200 bg-gray-50 h-20 flex items-center justify-center text-xs text-gray-300">
+          
+        </div>
+
+        <div className="mt-8 pt-6 border-t border-gray-100 flex items-center justify-between text-xs text-gray-400">
+          <a href="https://www.instagram.com/photobrush_kor" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-gray-600 transition-colors">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+              <circle cx="12" cy="12" r="4"/>
+              <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+            </svg>
+            @photobrush_kor
           </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
+          <a href="https://cushion-nu.vercel.app" target="_blank" rel="noopener noreferrer" className="hover:text-gray-600 transition-colors">
+            개떡같이 말해도 찰떡같이로 이동
           </a>
         </div>
-      </main>
-    </div>
-  );
+
+      </div>
+    </main>
+  )
 }
