@@ -17,6 +17,9 @@ export const metadata: Metadata = {
   title: "단호박어 번역기 — 싫은소리못하는사람의마음의소리",
   description: "쿠션어로 포장된 말을 진짜 하고 싶었던 말로 번역해드려요. 단호박어 번역기, 직장인 필수 앱.",
   keywords: "단호박어, 쿠션어 번역기, 직설적인 말투, 직장인, 말투 변환",
+  icons: {
+    icon: '/favicon.svg',
+  },
   openGraph: {
     title: "단호박어 번역기 — 싫은소리못하는사람의마음의소리",
     description: "쿠션어로 포장된 말을 진짜 하고 싶었던 말로 번역해드려요.",
@@ -24,6 +27,7 @@ export const metadata: Metadata = {
     siteName: "단호박어 번역기",
     locale: "ko_KR",
     type: "website",
+    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
   },
 };
 
