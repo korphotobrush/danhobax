@@ -31,7 +31,7 @@ export default function Home() {
       })
       const data = await res.json()
       if (data.error) {
-        setResult({ translation: '오늘 페이지 한도 초과 🎃 내일 다시 만나요', tip: '' })
+        setResult({ translation: data.error, tip: '' })
       } else {
         setResult(data)
       }
@@ -54,8 +54,11 @@ export default function Home() {
           rows={4}
           placeholder="여기에 쿠션어 붙여넣기..."
           value={text}
-          onChange={e => setText(e.target.value)}
+          onChange={e => setText(e.target.value.slice(0, 500))}
         />
+        <div className="text-right text-xs mb-2" style={{ color: text.length > 450 ? '#e24b4a' : '#9ca3af' }}>
+          {text.length} / 500
+        </div>
 
         <div className="mb-4">
           <p className="text-xs text-gray-400 mb-2">예시 문장</p>
@@ -87,9 +90,11 @@ export default function Home() {
             ))}
           </div>
         </div>
-<div className="mb-3 px-3 py-2 rounded-lg bg-orange-50 border border-orange-100 text-xs text-orange-400">
+
+        <div className="mb-3 px-3 py-2 rounded-lg bg-orange-50 border border-orange-100 text-xs text-orange-400">
           ⚠️ 해당 마음의 소리로 불필요한 감정싸움이 일어날 수 있으니 주의 바랍니다
         </div>
+
         <button onClick={translate} disabled={loading || !text.trim()} className="w-full py-3 rounded-xl bg-orange-400 hover:bg-orange-500 disabled:opacity-40 text-white font-medium transition-colors mb-6">
           {loading ? '번역 중...' : '🎃 단호박어로 번역'}
         </button>
@@ -114,20 +119,27 @@ export default function Home() {
           </div>
         )}
 
-        {/* 광고 영역 */}
-        <div className="mt-6 rounded-xl border border-dashed border-gray-200 bg-gray-50 h-20 flex items-center justify-center text-xs text-gray-300">
-          
-        </div>
+        {/* Adfit 광고 */}
+<div className="mt-6 text-center" suppressHydrationWarning
+  dangerouslySetInnerHTML={{
+    __html: `<ins class="kakao_ad_area" style="display:none;width:100%;" data-ad-unit="DAN-PnCthXBLfPz3GaZm" data-ad-width="320" data-ad-height="100"></ins>`
+  }}
+/>
 
         <div className="mt-8 pt-6 border-t border-gray-100 flex items-center justify-between text-xs text-gray-400">
-          <a href="https://www.instagram.com/photobrush_kor" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-gray-600 transition-colors">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-              <circle cx="12" cy="12" r="4"/>
-              <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
-            </svg>
-            @photobrush_kor
-          </a>
+          <div className="flex items-center gap-3">
+            <a href="https://www.instagram.com/photobrush_kor" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-gray-600 transition-colors">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                <circle cx="12" cy="12" r="4"/>
+                <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+              </svg>
+              @photobrush_kor
+            </a>
+            <a href="/privacy" className="hover:text-gray-600 transition-colors">
+              개인정보처리방침
+            </a>
+          </div>
           <a href="https://cushion-nu.vercel.app" target="_blank" rel="noopener noreferrer" className="hover:text-gray-600 transition-colors">
             개떡같이 말해도 찰떡같이로 이동
           </a>

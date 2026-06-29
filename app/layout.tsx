@@ -14,8 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "싫은소리못하는사람의마음의소리",
-  description: "쿠션어로 포장된 말을 진짜 하고 싶었던 말로 번역",
+  title: "단호박어 번역기 — 싫은소리못하는사람의마음의소리",
+  description: "쿠션어로 포장된 말을 진짜 하고 싶었던 말로 번역해드려요. 단호박어 번역기, 직장인 필수 앱.",
+  keywords: "단호박어, 쿠션어 번역기, 직설적인 말투, 직장인, 말투 변환",
 };
 
 export default function RootLayout({
@@ -38,6 +39,11 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         {children}
         <Analytics />
+        <script
+          async
+          type="text/javascript"
+          src="https://t1.kakaocdn.net/kas/static/ba.min.js"
+        />
       </body>
     </html>
   );

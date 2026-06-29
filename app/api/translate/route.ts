@@ -1,19 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Groq from 'groq-sdk'
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
+const getGroq = () => new Groq({ apiKey: process.env.GROQ_API_KEY })
 
 const MODELS = [
   'llama-3.3-70b-versatile',
+  'qwen/qwen3-32b',
+  'llama-4-scout-17b-16e-instruct',
   'llama-3.1-8b-instant',
   'gemma2-9b-it',
-  'mixtral-8x7b-32768',
 ]
 
-export async function POST(req: NextRequest) {
-  const { text, target, level } = await req.json()
+const MAX_INPUT_LENGTH = 500
+const MIN_INPUT_LENGTH = 2
 
-  const levelGuide: Record<number, string> = {
+export async function POST(req: NextRequest) {
+  const body = await req.json()
+  const { text, target, level } = body
+
+  // 서버 사이드 입력 검증
+  if (!text || typeof text !== 'string') {
+    return NextResponse.json({ error: '텍스트를 입력해주세요.' }, { status: 400 })
+  }
+  if (text.length < MIN_INPUT_LENGTH) {
+    return NextResponse.json({ error: '너무 짧아요. 조금 더 입력해주세요.' }, { status: 400 })
+  }
+  if (text.length > MAX_INPUT_LENGTH) {
+    return NextResponse.json({ error: `${MAX_INPUT_LENGTH}자 이하로 입력해주세요.` }, { status: 400 })
+  }
+
+    const levelGuide: Record<number, string> = {
     1: `직접적이지만 그나마 예의는 있음. 쿠션어만 제거. 불필요한 사과나 "혹시" "죄송" 같은 말 없애기. 예) "확인 부탁드립니다." / "내일까지 보내주세요."`,
     2: `단호하고 간결하게. 존댓말은 유지하되 군더더기 없이. 예) "내일까지 주세요." / "이건 어렵습니다."`,
     3: `확실하고 건조하게. 감정 없이 팩트만. 예) "안 됩니다." / "해주세요." / "이건 제 일이 아닙니다."`,
@@ -42,7 +58,7 @@ JSON 형식으로만 (마크다운 없이):
   let lastError: unknown
   for (const model of MODELS) {
     try {
-      const completion = await groq.chat.completions.create({
+      const completion = await getGroq().chat.completions.create({
         model,
         messages: [{ role: 'user', content: prompt }],
         temperature: level >= 4 ? 1.0 : 0.8,
@@ -60,5 +76,5 @@ JSON 형식으로만 (마크다운 없이):
     }
   }
 
-  return NextResponse.json({ error: '모든 모델 한도 초과' }, { status: 429 })
+  return NextResponse.json({ error: '잠시 후 다시 시도해주세요. 🙏' }, { status: 429 })
 }
