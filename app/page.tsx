@@ -54,8 +54,6 @@ function AdblockOverlay() {
 }
 
 const TARGETS = ['상사', '클라이언트', '동료', '친구/후배']
-
-const TARGETS = ['상사', '클라이언트', '동료', '친구/후배']
 const EXAMPLES = [
   '바쁘신 거 아는데 혹시 시간 되시면 봐주실 수 있을까요?',
   '제가 잘 몰라서 그런데 혹시 제 생각이 틀렸을까요?',
@@ -203,5 +201,6 @@ export default function Home() {
 
       </div>
     </main>
+    </>
   )
 }
