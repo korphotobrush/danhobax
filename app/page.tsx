@@ -174,11 +174,15 @@ export default function Home() {
         )}
 
         {/* Adfit 광고 */}
-<div className="mt-6 text-center" suppressHydrationWarning
-  dangerouslySetInnerHTML={{
-    __html: `<ins class="kakao_ad_area" style="display:none;width:100%;" data-ad-unit="DAN-PnCthXBLfPz3GaZm" data-ad-width="320" data-ad-height="100"></ins>`
-  }}
-/>
+<div className="mt-6 text-center">
+  <ins
+    className="kakao_ad_area"
+    style={{ display: "none", width: "100%" }}
+    data-ad-unit="DAN-PnCthXBLfPz3GaZm"
+    data-ad-width="320"
+    data-ad-height="100"
+  />
+</div>
 
         <div className="mt-8 pt-6 border-t border-gray-100 flex items-center justify-between text-xs text-gray-400">
           <div className="flex items-center gap-3">
